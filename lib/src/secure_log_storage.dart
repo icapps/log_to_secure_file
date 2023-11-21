@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_secure_file_storage/flutter_secure_file_storage.dart';
 import 'package:log_to_secure_file/src/log_name_util.dart';
 
@@ -5,13 +7,15 @@ class SecureLogStorage {
   static const _prefix = 'log_to_secure_file';
 
   String? _logKey;
-  
+
   final Duration logsExpireTime;
+  final Duration logsExpireCheckInterval;
   final LogNameUtil _logNameUtil = LogNameUtil(_prefix);
   final FlutterSecureFileStorage storage;
 
   SecureLogStorage({
     required this.storage,
+    this.logsExpireCheckInterval = const Duration(days: 1),
     this.logsExpireTime = const Duration(days: 7),
   }) {
     _init();
@@ -22,7 +26,13 @@ class SecureLogStorage {
     final logName = _logNameUtil.logNameFromDate(now);
     _logKey = logName;
     storeLogLine('=========================\n\nNew session started at ${now.toIso8601String()}\n\n=========================\n');
+    _initTimer();
+  }
+
+  void _initTimer() {
     _deleteOldLogs();
+    final pollingTime = logsExpireTime < logsExpireCheckInterval ? logsExpireTime : logsExpireCheckInterval;
+    Timer.periodic(pollingTime, (timer) => _deleteOldLogs());
   }
 
   Future<List<DateTime>> availableDates() async {
