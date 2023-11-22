@@ -10,10 +10,18 @@ class SecureLogStorage {
   late final FlutterSecureFileStorage _storage;
 
   String? _logKey;
+  Timer? _timer;
 
   final Duration logsExpireTime;
   final Duration logsExpireCheckInterval;
   final LogNameUtil _logNameUtil = LogNameUtil(_prefix);
+
+  String get logKey {
+    if (_logKey == null) {
+      throw ArgumentError('First run the init command before using SecureLogStorage');
+    }
+    return _logKey!;
+  }
 
   SecureLogStorage({
     FlutterSecureFileStorage? providedStorage,
@@ -21,21 +29,21 @@ class SecureLogStorage {
     this.logsExpireTime = const Duration(days: 7),
   }) {
     _storage = providedStorage ?? FlutterSecureFileStorage(const FlutterSecureStorage());
-    _init();
   }
 
-  _init() {
+  Future<void> init() async {
     final now = DateTime.now();
     final logName = _logNameUtil.logNameFromDate(now);
     _logKey = logName;
-    storeLogLine('=========================\n\nNew session started at ${now.toIso8601String()}\n\n=========================\n');
+    storeLogLine(
+        '=========================\n\nNew session started at ${DateTime(now.year, now.month, now.day, now.hour, now.minute).toIso8601String()}\n\n=========================\n');
     _initTimer();
   }
 
   void _initTimer() {
     _deleteOldLogs();
     final pollingTime = logsExpireTime < logsExpireCheckInterval ? logsExpireTime : logsExpireCheckInterval;
-    Timer.periodic(pollingTime, (timer) => _deleteOldLogs());
+    _timer = Timer.periodic(pollingTime, (timer) => _deleteOldLogs());
   }
 
   Future<List<DateTime>> availableDates() async {
@@ -49,10 +57,6 @@ class SecureLogStorage {
   }
 
   Future<void> storeLogLine(String logLine) async {
-    final logKey = _logKey;
-    if (logKey == null) {
-      throw ArgumentError('Init() should be called before using SecureLog_storage');
-    }
     var currentLogs = await _storage.read<String>(key: logKey);
     var logArray = currentLogs?.split(_logSeperator) ?? [];
     logArray.add(logLine);
@@ -74,5 +78,10 @@ class SecureLogStorage {
         await _storage.delete(key: _logNameUtil.logNameFromDate(date));
       }
     }
+  }
+
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
   }
 }

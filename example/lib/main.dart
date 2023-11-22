@@ -28,8 +28,8 @@ class _MainAppState extends State<MainApp> {
     setState(() {});
   }
 
-  Future<void> _onReadLogTapped(BuildContext context) {
-    return logStorage.getLogFromDate(DateTime.now()).then(
+  Future<void> _onReadLogTapped(BuildContext context, DateTime date) {
+    return logStorage.getLogFromDate(date).then(
           (logs) => showDialog(
             context: context,
             builder: (context) => Dialog(
@@ -62,12 +62,6 @@ class _MainAppState extends State<MainApp> {
                   child: const Text('Add Log'),
                 ),
                 MaterialButton(
-                  onPressed: () => _onReadLogTapped(context),
-                  color: Colors.yellow,
-                  textColor: Colors.black,
-                  child: const Text('Read Log'),
-                ),
-                MaterialButton(
                   onPressed: _onDeleteLogsTapped,
                   color: Colors.red,
                   textColor: Colors.white,
@@ -78,7 +72,21 @@ class _MainAppState extends State<MainApp> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Column(
-                        children: snapshot.data!.map((date) => Text(date.toString())).toList(),
+                        children: snapshot.data!
+                            .map(
+                              (date) => Row(
+                                children: [
+                                  Expanded(child: Text(date.toString())),
+                                  MaterialButton(
+                                    onPressed: () => _onReadLogTapped(context, date),
+                                    color: Colors.yellow,
+                                    textColor: Colors.black,
+                                    child: const Text('Read Log'),
+                                  ),
+                                ],
+                              ),
+                            )
+                            .toList(),
                       );
                     }
                     return const SizedBox.shrink();
