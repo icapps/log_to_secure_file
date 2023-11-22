@@ -13,7 +13,7 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  final SecureLogStorage logStorage = SecureLogStorage();
+  final SecureLogStorage logStorage = SecureLogStorage()..init();
   int _count = 0;
 
   void _onAddLogTapped() {
