@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_key_value_file_storage: ^0.0.8
-  flutter_secure_file_storage: ^1.1.0
+  flutter_key_value_file_storage: ^0.1.0
+  flutter_secure_file_storage: ^1.2.0
   flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
