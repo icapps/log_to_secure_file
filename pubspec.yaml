@@ -1,7 +1,7 @@
 name: log_to_secure_file
 description: "A package to save and retrieve logs securely"
 version: 1.0.0
-homepage:
+homepage: https://github.com/icapps/log_to_secure_file
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_secure_file_storage: ^1.1.0
+  flutter_key_value_file_storage: ^0.1.0
+  flutter_secure_file_storage: ^1.2.0
   flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
